@@ -5,7 +5,6 @@ from datetime import datetime
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-import time
 from pytz import timezone
 from googletrans import Translator
 import textwrap
@@ -23,10 +22,11 @@ rss_feeds = {
 }
 
 # Function to parse all RSS feeds
-@st.cache(ttl=86400)  # TTL (Time-To-Live) is 1 day in seconds
 def parse_feeds():
+    st.write("Parsing feeds...")
     data = []
     for feed_name, feed_url in rss_feeds.items():
+        st.write(f"Fetching feed: {feed_name}")
         parsed_feed = feedparser.parse(feed_url)
         for entry in parsed_feed.entries:
             data.append({
@@ -37,6 +37,7 @@ def parse_feeds():
                 "published": datetime(*entry.published_parsed[:6]),
                 "image": entry.get("media_content", [None])[0].get("url", None) if "media_content" in entry else None
             })
+    st.write("Feeds parsed.")
     df = pd.DataFrame(data)
     return df
 
@@ -47,6 +48,7 @@ st.title("Food Safety News & Reviews")
 with st.sidebar:
     st.header("Navigation")
     feeds_df = parse_feeds()
+    st.write("Feeds data loaded.")
     feeds = feeds_df["feed"].unique()
     if len(feeds) == 0:
         st.write("No feeds available.")
