@@ -3,7 +3,7 @@ import feedparser
 import pandas as pd
 from datetime import datetime, timedelta
 import io
-from docx import Document
+from docx import Document  # Keep this import for the PDF conversion
 from docx.shared import Inches
 import base64
 import schedule
@@ -21,7 +21,7 @@ rss_feeds = {
     "Food Safety News": "https://feeds.lexblog.com/foodsafetynews/mRcs",
     "Food Manufacture": "https://www.foodmanufacture.co.uk/Info/FoodManufacture-RSS",
     "Food Packaging Forum": "https://www.foodpackagingforum.org/news/feed/",
-    "ANSES": "https://www.anses.fr/fr/flux-actualites.rss" 
+    "ANSES": "https://www.anses.fr/fr/flux-actualites.rss"
 }
 
 # Function to parse all RSS feeds (memoized to update once daily)
@@ -116,7 +116,7 @@ if "review_articles" in st.session_state:
 
     # Download/Email Options
     st.markdown("---")
-    download_format = st.selectbox("Download Format:", ["PDF", "Word", "Email"])
+    download_format = st.selectbox("Download Format:", ["PDF", "Email"])
     if download_format == "PDF":
         # Convert review to PDF
         output = io.BytesIO()
@@ -135,25 +135,6 @@ if "review_articles" in st.session_state:
             data=output,
             file_name="food_safety_review.pdf",
             mime="application/pdf"
-        )
-    elif download_format == "Word":
-        # Convert review to Word
-        doc = Document()
-        doc.add_paragraph("Food Safety News Review")
-        doc.add_paragraph(f"Date: {datetime.now().strftime('%Y-%m-%d')}")
-        doc.add_paragraph(f"Selected Articles:")
-        for article in st.session_state.get("review_articles", []):
-            doc.add_paragraph(f"- {article['title']}")
-            doc.add_paragraph(f"{article['summary'][:200]}...")
-        doc.add_paragraph(review_text)
-        output = io.BytesIO()
-        doc.save(output)
-        output.seek(0)
-        st.download_button(
-            label="Download Review as Word",
-            data=output,
-            file_name="food_safety_review.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
     elif download_format == "Email":
         # (Easiest way for email)
