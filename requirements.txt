@@ -1,7 +1,8 @@
-streamlit
-feedparser
-pandas
-reportlab
-googletrans
-schedule
-pytz
+streamlit==1.19.0
+feedparser==6.0.10
+pandas==1.4.2
+reportlab==3.6.12
+schedule==1.1.0
+pytz==2022.1
+googletrans==4.0.0-rc1
+textwrap3==0.9.2
