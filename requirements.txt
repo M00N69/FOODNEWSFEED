@@ -3,4 +3,5 @@ feedparser
 pandas
 reportlab
 googletrans
+textwrap
 pytz
