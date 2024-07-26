@@ -5,6 +5,8 @@ from datetime import datetime
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
 from pytz import timezone
 from googletrans import Translator
 import textwrap
@@ -26,16 +28,16 @@ def parse_feeds():
     data = []
     for feed_name, feed_url in rss_feeds.items():
         parsed_feed = feedparser.parse(feed_url)
-        for entry in parsed_feed.entries:
+        for entry in parsed_feed.entries[:8]:  # Get the latest 8 articles
             data.append({
                 "feed": feed_name,
                 "title": entry.title,
                 "link": entry.link,
                 "summary": entry.summary,
-                "published": datetime(*entry.published_parsed[:6]),
+                "published": datetime(*entry.published_parsed[:6]).strftime("%Y-%m-%d"),
                 "image": entry.get("media_content", [None])[0].get("url", None) if "media_content" in entry else None
             })
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(data).sort_values(by="feed", ascending=True)  # Sort by feed
     return df
 
 # Main app logic
@@ -55,40 +57,19 @@ with st.sidebar:
         selected_feed = st.selectbox("Select a Feed:", list(feeds))
         paris_timezone = timezone('Europe/Paris')
         st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
-        selected_language = st.selectbox("Select Language:", ["English", "French", "Spanish"])
 
 st.markdown("---")
+
+# Display news for the selected feed
 st.header(f"{selected_feed} Articles")
 
-# Filter by date
-selected_date = st.date_input("Select a Date", datetime.now().date())
-df_filtered = feeds_df[
-    (feeds_df["feed"] == selected_feed) & 
-    (feeds_df["published"].dt.date == selected_date)
-]
-
-st.write("Articles filtered.")
-
-# Display filtered articles
-for index, row in df_filtered.iterrows():
+for index, row in feeds_df[feeds_df["feed"] == selected_feed].iterrows():
     st.write(f"**{row['title']}**")
     if row["image"]:
         st.image(row["image"], caption="Image from the article")
 
-    # Translate summary
-    translator = Translator()
-    if selected_language == "French":
-        translated_summary = translator.translate(row["summary"], dest="fr").text
-    elif selected_language == "Spanish":
-        translated_summary = translator.translate(row["summary"], dest="es").text
-    else:
-        translated_summary = row["summary"]
-
-    # Wrap the summary for readability
-    wrapped_summary = textwrap.wrap(translated_summary, width=100)
-    for line in wrapped_summary:
-        st.write(line)
-
+    st.write(f"**{row['published']}**")
+    st.write(f"{row['summary']}")  # No need to wrap or translate
     st.write(f"[Read More]({row['link']})")
 
     # Allow users to add articles to review
@@ -107,6 +88,8 @@ if "review_articles" in st.session_state:
     st.write("Selected Articles:")
     for i, article in enumerate(st.session_state["review_articles"]):
         st.write(f"**{i+1}. {article['title']}**")
+        st.write(f"**{article['published']}**")
+        st.write(f"{article['summary']}")
         st.write(f"[Read More]({article['link']})")
 
     # Add review text area
@@ -119,18 +102,31 @@ if "review_articles" in st.session_state:
     if download_format == "PDF":
         # Convert review to PDF
         output = io.BytesIO()
-        c = canvas.Canvas(output, pagesize=letter)
-        c.drawString(100, 700, "Food Safety News Review")
-        c.drawString(100, 670, f"Date: {datetime.now().strftime('%Y-%m-%d')}")
-        c.drawString(100, 640, "Selected Articles:")
-        y_position = 600
+        doc = SimpleDocTemplate(output, pagesize=letter)
+        styles = getSampleStyleSheet()
+        Story = []
+        Story.append(Paragraph("Food Safety News Review", styles["Heading1"]))
+        Story.append(Spacer(1, 12))
+        Story.append(Paragraph(f"Date: {datetime.now().strftime('%Y-%m-%d')}", styles["Normal"]))
+        Story.append(Spacer(1, 12))
+        Story.append(Paragraph("Selected Articles:", styles["Heading2"]))
+
         for i, article in enumerate(st.session_state["review_articles"]):
-            c.drawString(100, y_position, f"{i+1}. {article['title']}")
-            y_position -= 20
-            c.drawString(100, y_position, f"{article['summary'][:200]}...")
-            y_position -= 20
-        c.drawString(100, y_position, review_text)
-        c.save()
+            data = [
+                [Paragraph(f"{i+1}. {article['title']}", styles["Heading3"])],
+                [Paragraph(f"**{article['published']}**", styles["Normal"])],
+                [Paragraph(article["summary"], styles["Normal"])],
+                [Paragraph(f"[Read More]({article['link']})", styles["Normal"])]
+            ]
+            Story.append(Table(data, style=[('VALIGN', (0, 0), (-1, -1), 'TOP'), ('ALIGN', (0, 0), (-1, -1), 'LEFT')]))
+            Story.append(Spacer(1, 12))
+
+        Story.append(Spacer(1, 12))
+        Story.append(Paragraph("Review:", styles["Heading2"]))
+        Story.append(Spacer(1, 12))
+        Story.append(Paragraph(review_text, styles["Normal"]))
+
+        doc.build(Story)
         output.seek(0)
         st.download_button(
             label="Download Review as PDF",
