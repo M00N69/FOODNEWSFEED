@@ -149,4 +149,3 @@ if "review_articles" in st.session_state:
         )
 
 st.write("App finished setup.")
-
