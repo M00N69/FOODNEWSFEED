@@ -8,7 +8,6 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
 from pytz import timezone
-from googletrans import Translator
 import textwrap
 
 # Define your list of RSS feeds
@@ -69,7 +68,7 @@ for index, row in feeds_df[feeds_df["feed"] == selected_feed].iterrows():
         st.image(row["image"], caption="Image from the article")
 
     st.write(f"**{row['published']}**")
-    st.write(f"{row['summary']}")  # No need to wrap or translate
+    st.write(f"{row['summary']}")  # No translation needed
     st.write(f"[Read More]({row['link']})")
 
     # Allow users to add articles to review
