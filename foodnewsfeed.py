@@ -21,12 +21,10 @@ rss_feeds = {
     "ANSES": "https://www.anses.fr/fr/flux-actualites.rss"
 }
 
-# Function to parse all RSS feeds
+# Function to parse all RSS feeds (call this once at the start)
 def parse_feeds():
-    st.write("Parsing feeds...")
     data = []
     for feed_name, feed_url in rss_feeds.items():
-        st.write(f"Fetching feed: {feed_name}")
         parsed_feed = feedparser.parse(feed_url)
         for entry in parsed_feed.entries:
             data.append({
@@ -37,18 +35,18 @@ def parse_feeds():
                 "published": datetime(*entry.published_parsed[:6]),
                 "image": entry.get("media_content", [None])[0].get("url", None) if "media_content" in entry else None
             })
-    st.write("Feeds parsed.")
     df = pd.DataFrame(data)
     return df
 
 # Main app logic
 st.title("Food Safety News & Reviews")
-st.write("App started")
+
+# Parse feeds once at the start
+feeds_df = parse_feeds()
 
 # Sidebar for navigation
 with st.sidebar:
     st.header("Navigation")
-    feeds_df = parse_feeds()
     st.write("Feeds data loaded.")
     feeds = feeds_df["feed"].unique()
     if len(feeds) == 0:
@@ -68,8 +66,6 @@ df_filtered = feeds_df[
     (feeds_df["feed"] == selected_feed) & 
     (feeds_df["published"].dt.date == selected_date)
 ]
-
-st.write("Articles filtered.")
 
 # Display filtered articles
 for index, row in df_filtered.iterrows():
@@ -147,5 +143,3 @@ if "review_articles" in st.session_state:
             """,
             unsafe_allow_html=True
         )
-
-st.write("App finished setup.")
