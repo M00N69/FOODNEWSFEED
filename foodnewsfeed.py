@@ -1,16 +1,14 @@
 import streamlit as st
 import feedparser
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-import schedule
 import time
 from pytz import timezone
 from googletrans import Translator
 import textwrap
-import threading
 
 # Define your list of RSS feeds
 rss_feeds = {
@@ -25,7 +23,7 @@ rss_feeds = {
 }
 
 # Function to parse all RSS feeds
-@st.cache_data(ttl=86400)  # TTL (Time-To-Live) is 1 day in seconds
+@st.cache(ttl=86400)  # TTL (Time-To-Live) is 1 day in seconds
 def parse_feeds():
     data = []
     for feed_name, feed_url in rss_feeds.items():
@@ -41,12 +39,6 @@ def parse_feeds():
             })
     df = pd.DataFrame(data)
     return df
-
-# Function to run the scheduler
-def run_scheduler():
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
 
 # Main app logic
 st.title("Food Safety News & Reviews")
@@ -150,7 +142,3 @@ if "review_articles" in st.session_state:
             """,
             unsafe_allow_html=True
         )
-
-# Start the scheduler in a separate thread
-threading.Thread(target=run_scheduler, daemon=True).start()
-
