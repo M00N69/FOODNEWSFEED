@@ -27,18 +27,19 @@ rss_feeds = {
 # Function to parse all RSS feeds (memoized to update once daily)
 @st.cache(ttl=86400)  # TTL (Time-To-Live) is 1 day in seconds
 def parse_feeds():
-    df = pd.DataFrame()
+    data = []
     for feed_name, feed_url in rss_feeds.items():
         parsed_feed = feedparser.parse(feed_url)
         for entry in parsed_feed.entries:
-            df = df.append({
+            data.append({
                 "feed": feed_name,
                 "title": entry.title,
                 "link": entry.link,
                 "summary": entry.summary,
                 "published": datetime.fromtimestamp(time.mktime(entry.published_parsed)),
                 "image": entry.get("media_content", [None])[0].get("url", None) if "media_content" in entry else None
-            }, ignore_index=True)
+            })
+    df = pd.DataFrame(data)
     return df
 
 # Get the current time in Paris
