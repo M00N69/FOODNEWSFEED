@@ -36,7 +36,7 @@ def parse_feeds():
                 "title": entry.title,
                 "link": entry.link,
                 "summary": entry.summary,
-                "published": datetime.fromtimestamp(entry.published_parsed),
+                "published": datetime.fromtimestamp(time.mktime(entry.published_parsed)),
                 "image": entry.get("media_content", [None])[0].get("url", None) if "media_content" in entry else None
             }, ignore_index=True)
     return df
@@ -51,7 +51,16 @@ if current_time > next_update_time:
     next_update_time += timedelta(days=1)
 
 # Schedule the feed update
-schedule.every().day.at("08:00").do(parse_feeds).run()
+schedule.every().day.at("08:00").do(parse_feeds)
+
+# Run the scheduler in a separate thread to avoid blocking the app
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+import threading
+threading.Thread(target=run_scheduler, daemon=True).start()
 
 # Main app logic
 st.title("Food Safety News & Reviews")
@@ -59,16 +68,23 @@ st.title("Food Safety News & Reviews")
 # Sidebar for navigation
 with st.sidebar:
     st.header("Navigation")
-    selected_feed = st.selectbox("Select a Feed:", list(parse_feeds()["feed"].unique()))
-    st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
-    selected_language = st.selectbox("Select Language:", ["English", "French", "Spanish"])
+    feeds = parse_feeds()["feed"].unique()
+    if len(feeds) == 0:
+        st.write("No feeds available.")
+    else:
+        selected_feed = st.selectbox("Select a Feed:", list(feeds))
+        st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
+        selected_language = st.selectbox("Select Language:", ["English", "French", "Spanish"])
 
 st.markdown("---")
 st.header(f"{selected_feed} Articles")
 
 # Filter by date
-selected_date = st.date_input("Select a Date", datetime.now())
-df_filtered = parse_feeds()[(parse_feeds()["feed"] == selected_feed) & (parse_feeds()["published"].dt.date == selected_date)]
+selected_date = st.date_input("Select a Date", datetime.now().date())
+df_filtered = parse_feeds()[
+    (parse_feeds()["feed"] == selected_feed) & 
+    (parse_feeds()["published"].dt.date == selected_date)
+]
 
 # Display filtered articles
 for index, row in df_filtered.iterrows():
@@ -93,9 +109,9 @@ for index, row in df_filtered.iterrows():
     st.write(f"[Read More]({row['link']})")
 
     # Allow users to add articles to review
-    review_button = st.button("Add to Review", key=f"review_{index}")
-    if review_button:
-        st.session_state["review_articles"] = st.session_state.get("review_articles", [])
+    if st.button("Add to Review", key=f"review_{index}"):
+        if "review_articles" not in st.session_state:
+            st.session_state["review_articles"] = []
         st.session_state["review_articles"].append(row)
         st.success(f"Article added to review!")
 
@@ -106,7 +122,7 @@ st.header("Your Review")
 # Display selected articles for review
 if "review_articles" in st.session_state:
     st.write("Selected Articles:")
-    for i, article in enumerate(st.session_state.get("review_articles", [])):
+    for i, article in enumerate(st.session_state["review_articles"]):
         st.write(f"**{i+1}. {article['title']}**")
         st.write(f"[Read More]({article['link']})")
 
@@ -125,7 +141,7 @@ if "review_articles" in st.session_state:
         c.drawString(100, 670, f"Date: {datetime.now().strftime('%Y-%m-%d')}")
         c.drawString(100, 640, "Selected Articles:")
         y_position = 600
-        for i, article in enumerate(st.session_state.get("review_articles", [])):
+        for i, article in enumerate(st.session_state["review_articles"]):
             c.drawString(100, y_position, f"{i+1}. {article['title']}")
             y_position -= 20
             c.drawString(100, y_position, f"{article['summary'][:200]}...")
@@ -140,7 +156,6 @@ if "review_articles" in st.session_state:
             mime="application/pdf"
         )
     elif download_format == "Email":
-        # (Easiest way for email)
         st.markdown(
             f"""
             <a href="mailto:?subject=Food Safety News Review&body={review_text}">Send Review via Email</a>
