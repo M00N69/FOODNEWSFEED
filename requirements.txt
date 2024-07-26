@@ -3,6 +3,5 @@ feedparser
 pandas
 reportlab
 googletrans
-textwrap
 schedule
 pytz
