@@ -3,5 +3,6 @@ feedparser
 pandas
 docx
 googletrans
+textwrap
 schedule
 pytz
