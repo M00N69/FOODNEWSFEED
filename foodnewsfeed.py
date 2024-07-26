@@ -3,8 +3,8 @@ import feedparser
 import pandas as pd
 from datetime import datetime, timedelta
 import io
-from docx import Document  # Keep this import for the PDF conversion
-from docx.shared import Inches
+from reportlab.pdfgen import canvas  # Import reportlab for PDF
+from reportlab.lib.pagesizes import letter
 import base64
 import schedule
 import time
@@ -120,15 +120,18 @@ if "review_articles" in st.session_state:
     if download_format == "PDF":
         # Convert review to PDF
         output = io.BytesIO()
-        pdf_document = Document()
-        pdf_document.add_paragraph("Food Safety News Review")
-        pdf_document.add_paragraph(f"Date: {datetime.now().strftime('%Y-%m-%d')}")
-        pdf_document.add_paragraph(f"Selected Articles:")
-        for article in st.session_state.get("review_articles", []):
-            pdf_document.add_paragraph(f"- {article['title']}")
-            pdf_document.add_paragraph(f"{article['summary'][:200]}...")
-        pdf_document.add_paragraph(review_text)
-        pdf_document.save(output)
+        c = canvas.Canvas(output, pagesize=letter)
+        c.drawString(100, 700, "Food Safety News Review")
+        c.drawString(100, 670, f"Date: {datetime.now().strftime('%Y-%m-%d')}")
+        c.drawString(100, 640, "Selected Articles:")
+        y_position = 600
+        for i, article in enumerate(st.session_state.get("review_articles", [])):
+            c.drawString(100, y_position, f"{i+1}. {article['title']}")
+            y_position -= 20
+            c.drawString(100, y_position, f"{article['summary'][:200]}...")
+            y_position -= 20
+        c.drawString(100, y_position, review_text)
+        c.save()
         output.seek(0)
         st.download_button(
             label="Download Review as PDF",
