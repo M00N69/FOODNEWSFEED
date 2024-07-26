@@ -43,6 +43,7 @@ def parse_feeds():
 
 # Main app logic
 st.title("Food Safety News & Reviews")
+st.write("App started")
 
 # Sidebar for navigation
 with st.sidebar:
@@ -67,6 +68,8 @@ df_filtered = feeds_df[
     (feeds_df["feed"] == selected_feed) & 
     (feeds_df["published"].dt.date == selected_date)
 ]
+
+st.write("Articles filtered.")
 
 # Display filtered articles
 for index, row in df_filtered.iterrows():
@@ -144,3 +147,5 @@ if "review_articles" in st.session_state:
             """,
             unsafe_allow_html=True
         )
+
+st.write("App finished setup.")
