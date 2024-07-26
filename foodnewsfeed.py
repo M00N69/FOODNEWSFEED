@@ -25,7 +25,7 @@ rss_feeds = {
 }
 
 # Function to parse all RSS feeds (memoized to update once daily)
-@st.experimental_memo(ttl=86400)  # TTL (Time-To-Live) is 1 day in seconds
+@st.cache_data(ttl=86400)  # TTL (Time-To-Live) is 1 day in seconds
 def parse_feeds():
     df = pd.DataFrame()
     for feed_name, feed_url in rss_feeds.items():
