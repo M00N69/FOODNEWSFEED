@@ -5,12 +5,12 @@ from datetime import datetime, timedelta
 import io
 from reportlab.pdfgen import canvas  # Import reportlab for PDF
 from reportlab.lib.pagesizes import letter
-import base64
 import schedule
 import time
 from pytz import timezone
 from googletrans import Translator  # For translation
 import textwrap  # For wrapping summaries
+import threading
 
 # Define your list of RSS feeds
 rss_feeds = {
@@ -25,7 +25,7 @@ rss_feeds = {
 }
 
 # Function to parse all RSS feeds (memoized to update once daily)
-@st.cache_data(ttl=86400)  # TTL (Time-To-Live) is 1 day in seconds
+@st.cache(ttl=86400)  # TTL (Time-To-Live) is 1 day in seconds
 def parse_feeds():
     df = pd.DataFrame()
     for feed_name, feed_url in rss_feeds.items():
@@ -59,7 +59,6 @@ def run_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
-import threading
 threading.Thread(target=run_scheduler, daemon=True).start()
 
 # Main app logic
