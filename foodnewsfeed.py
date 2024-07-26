@@ -3,13 +3,13 @@ import feedparser
 import pandas as pd
 from datetime import datetime, timedelta
 import io
-from reportlab.pdfgen import canvas  # Import reportlab for PDF
+from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import schedule
 import time
 from pytz import timezone
-from googletrans import Translator  # For translation
-import textwrap  # For wrapping summaries
+from googletrans import Translator
+import textwrap
 import threading
 
 # Define your list of RSS feeds
@@ -24,8 +24,8 @@ rss_feeds = {
     "ANSES": "https://www.anses.fr/fr/flux-actualites.rss"
 }
 
-# Function to parse all RSS feeds (memoized to update once daily)
-@st.cache(ttl=86400)  # TTL (Time-To-Live) is 1 day in seconds
+# Function to parse all RSS feeds
+@st.cache_data(ttl=86400)  # TTL (Time-To-Live) is 1 day in seconds
 def parse_feeds():
     data = []
     for feed_name, feed_url in rss_feeds.items():
@@ -36,31 +36,17 @@ def parse_feeds():
                 "title": entry.title,
                 "link": entry.link,
                 "summary": entry.summary,
-                "published": datetime.fromtimestamp(time.mktime(entry.published_parsed)),
+                "published": datetime(*entry.published_parsed[:6]),
                 "image": entry.get("media_content", [None])[0].get("url", None) if "media_content" in entry else None
             })
     df = pd.DataFrame(data)
     return df
 
-# Get the current time in Paris
-paris_timezone = timezone('Europe/Paris')
-current_time = datetime.now(paris_timezone)
-
-# Calculate the next scheduled update time (8:00 AM Paris time)
-next_update_time = current_time.replace(hour=8, minute=0, second=0, microsecond=0)
-if current_time > next_update_time:
-    next_update_time += timedelta(days=1)
-
-# Schedule the feed update
-schedule.every().day.at("08:00").do(parse_feeds)
-
-# Run the scheduler in a separate thread to avoid blocking the app
+# Function to run the scheduler
 def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(1)
-
-threading.Thread(target=run_scheduler, daemon=True).start()
 
 # Main app logic
 st.title("Food Safety News & Reviews")
@@ -68,11 +54,13 @@ st.title("Food Safety News & Reviews")
 # Sidebar for navigation
 with st.sidebar:
     st.header("Navigation")
-    feeds = parse_feeds()["feed"].unique()
+    feeds_df = parse_feeds()
+    feeds = feeds_df["feed"].unique()
     if len(feeds) == 0:
         st.write("No feeds available.")
     else:
         selected_feed = st.selectbox("Select a Feed:", list(feeds))
+        paris_timezone = timezone('Europe/Paris')
         st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
         selected_language = st.selectbox("Select Language:", ["English", "French", "Spanish"])
 
@@ -81,9 +69,9 @@ st.header(f"{selected_feed} Articles")
 
 # Filter by date
 selected_date = st.date_input("Select a Date", datetime.now().date())
-df_filtered = parse_feeds()[
-    (parse_feeds()["feed"] == selected_feed) & 
-    (parse_feeds()["published"].dt.date == selected_date)
+df_filtered = feeds_df[
+    (feeds_df["feed"] == selected_feed) & 
+    (feeds_df["published"].dt.date == selected_date)
 ]
 
 # Display filtered articles
@@ -162,3 +150,6 @@ if "review_articles" in st.session_state:
             """,
             unsafe_allow_html=True
         )
+
+# Start the scheduler in a separate thread
+threading.Thread(target=run_scheduler, daemon=True).start()
