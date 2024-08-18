@@ -9,8 +9,14 @@ st.set_page_config(layout="wide")
 
 # Define your list of RSS feeds
 rss_feeds = {
+    "EU Legislation": "https://eur-lex.europa.eu/EN/display-feed.rss?myRssId=e1Wry6%2FANeUpe1f1%2BCToXcHk31CTyaJK",
+    "EFSA": "https://www.efsa.europa.eu/en/all/rss",
+    "EU Food Safety": "https://food.ec.europa.eu/node/2/rss_en",
+    "Food Quality & Safety": "https://www.foodqualityandsafety.com/category/eupdate/feed/",
     "Food Safety News": "https://feeds.lexblog.com/foodsafetynews/mRcs",
-    # Ajoutez d'autres flux RSS si nécessaire
+    "Food Manufacture": "https://www.foodmanufacture.co.uk/Info/FoodManufacture-RSS",
+    "Food Packaging Forum": "https://www.foodpackagingforum.org/news/feed/",
+    "ANSES": "https://www.anses.fr/fr/flux-actualites.rss"
 }
 
 # Function to parse all RSS feeds
@@ -37,7 +43,7 @@ with st.sidebar:
     st.write("Select the news sources:")
 
     feeds = list(rss_feeds.keys())
-    selected_feeds = st.multiselect("Select Feeds:", feeds, default=feeds[:1])  # Ensure at least one feed is selected
+    selected_feeds = st.multiselect("Select Feeds:", feeds, default=feeds)  # All feeds selected by default
 
     # Date filter
     min_date = st.date_input("Start date", value=pd.to_datetime("2023-01-01"))
@@ -66,20 +72,19 @@ st.header("Selected Articles")
 if not filtered_df.empty:
     # Add a column for "Add to Review" buttons
     def add_to_review_button(row):
-        return st.button("+", key=f"review_{row.name}", help="Add to Review")
-
-    filtered_df['Add to Review'] = filtered_df.apply(add_to_review_button, axis=1)
-    
-    # Display the table
-    for index, row in filtered_df.iterrows():
-        st.markdown(f"### {row['title']}")
-        st.markdown(f"**Published on:** {row['published'].strftime('%Y-%m-%d')}")
-        st.markdown(f"{row['summary']}")
-        st.markdown(f"[Read More]({row['link']})")
-        if st.button("+", key=f"review_{index}", help="Add to Review"):
+        # Create a unique key for each button based on the row index
+        button_label = f"Add {row.name}"
+        if st.button("➕", key=button_label, help="Add to Review"):
             st.session_state["review_articles"].append(row)
-            st.success(f"Article added to review!")
-        st.markdown("---")
+
+    filtered_df["Add to Review"] = filtered_df.apply(add_to_review_button, axis=1)
+    
+    # Display the table with the "Add to Review" buttons as the last column
+    filtered_df_display = filtered_df[["published", "title", "summary", "link"]]
+    filtered_df_display['link'] = filtered_df_display['link'].apply(lambda x: f'<a href="{x}" target="_blank">Read More</a>')
+    
+    st.write(filtered_df_display.to_html(escape=False, index=False), unsafe_allow_html=True)
+
 else:
     st.write("No articles available for the selected sources and date range.")
 
@@ -103,4 +108,5 @@ if "review_articles" in st.session_state and st.session_state["review_articles"]
     # PDF and Email logic remains unchanged
 
 st.write("App finished setup.")
+
 
