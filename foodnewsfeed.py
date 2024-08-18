@@ -9,14 +9,8 @@ st.set_page_config(layout="wide")
 
 # Define your list of RSS feeds
 rss_feeds = {
-    "EU Legislation": "https://eur-lex.europa.eu/EN/display-feed.rss?myRssId=e1Wry6%2FANeUpe1f1%2BCToXcHk31CTyaJK",
-    "EFSA": "https://www.efsa.europa.eu/en/all/rss",
-    "EU Food Safety": "https://food.ec.europa.eu/node/2/rss_en",
-    "Food Quality & Safety": "https://www.foodqualityandsafety.com/category/eupdate/feed/",
     "Food Safety News": "https://feeds.lexblog.com/foodsafetynews/mRcs",
-    "Food Manufacture": "https://www.foodmanufacture.co.uk/Info/FoodManufacture-RSS",
-    "Food Packaging Forum": "https://www.foodpackagingforum.org/news/feed/",
-    "ANSES": "https://www.anses.fr/fr/flux-actualites.rss"
+    # Ajoutez d'autres flux RSS si nécessaire
 }
 
 # Function to parse all RSS feeds
@@ -52,6 +46,12 @@ with st.sidebar:
     paris_timezone = timezone('Europe/Paris')
     st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
 
+    # Option to download the selected review as CSV
+    if "review_articles" in st.session_state and st.session_state["review_articles"]:
+        review_df = pd.DataFrame(st.session_state["review_articles"])
+        csv = review_df.to_csv(index=False)
+        st.download_button(label="Download Review as CSV", data=csv, file_name="review.csv", mime="text/csv")
+
 # Parse feeds based on selected sources
 feeds_df = parse_feeds(selected_feeds)
 
@@ -64,27 +64,30 @@ st.markdown("---")
 st.header("Selected Articles")
 
 if not filtered_df.empty:
-    # Display articles in a table format
-    filtered_df['link'] = filtered_df['link'].apply(lambda x: f'<a href="{x}" target="_blank">Link</a>')
-    st.write(filtered_df.to_html(escape=False, index=False, columns=["published", "title", "summary", "link"]), unsafe_allow_html=True)
+    # Add a column for "Add to Review" buttons
+    def add_to_review_button(row):
+        return st.button("+", key=f"review_{row.name}", help="Add to Review")
+
+    filtered_df['Add to Review'] = filtered_df.apply(add_to_review_button, axis=1)
+    
+    # Display the table
+    for index, row in filtered_df.iterrows():
+        st.markdown(f"### {row['title']}")
+        st.markdown(f"**Published on:** {row['published'].strftime('%Y-%m-%d')}")
+        st.markdown(f"{row['summary']}")
+        st.markdown(f"[Read More]({row['link']})")
+        if st.button("+", key=f"review_{index}", help="Add to Review"):
+            st.session_state["review_articles"].append(row)
+            st.success(f"Article added to review!")
+        st.markdown("---")
 else:
     st.write("No articles available for the selected sources and date range.")
 
-# Allow users to add articles to review
-st.markdown("---")
-st.header("Your Review")
-
-if "review_articles" not in st.session_state:
-    st.session_state["review_articles"] = []
-
-for index, row in filtered_df.iterrows():
-    if st.button("Add to Review", key=f"review_{index}"):
-        st.session_state["review_articles"].append(row)
-        st.success(f"Article added to review!")
-
 # Display selected articles for review
-if st.session_state["review_articles"]:
-    st.write("Selected Articles for Review:")
+if "review_articles" in st.session_state and st.session_state["review_articles"]:
+    st.markdown("---")
+    st.header("Your Review")
+
     review_df = pd.DataFrame(st.session_state["review_articles"])
     for i, article in review_df.iterrows():
         st.markdown(f"### {i+1}. {article['title']}")
