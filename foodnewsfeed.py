@@ -75,49 +75,19 @@ st.markdown("---")
 st.header("Selected Articles")
 
 if not filtered_df.empty:
-    # CSS to align the dates and style the buttons
-    st.markdown("""
-    <style>
-    th, td {
-        text-align: center;
-        vertical-align: middle;
-    }
-    .button {
-        display: inline-block;
-        padding: 5px 10px;
-        font-size: 14px;
-        cursor: pointer;
-        text-align: center;
-        text-decoration: none;
-        outline: none;
-        color: #fff;
-        background-color: #4CAF50;
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 5px #999;
-    }
-    .button:hover {background-color: #3e8e41}
-    .button:active {
-        background-color: #3e8e41;
-        box-shadow: 0 2px #666;
-        transform: translateY(2px);
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    # Add a new column with buttons
-    def add_to_review_button(index):
-        if st.button("➕", key=f"add_{index}_to_review", help="Add to Review"):
-            if "review_articles" not in st.session_state:
-                st.session_state["review_articles"] = []
-            st.session_state["review_articles"].append(filtered_df.loc[index])
-
-    filtered_df['Add to Review'] = filtered_df.index.to_series().apply(add_to_review_button)
-
-    # Display the table with the Add to Review buttons
-    filtered_df['link'] = filtered_df['link'].apply(lambda x: f'<a href="{x}" target="_blank">Read More</a>')
-
-    st.write(filtered_df.to_html(escape=False, index=False, columns=["published", "title", "summary", "link", "Add to Review"]), unsafe_allow_html=True)
+    # Display articles manually with a button to add each one to the review
+    for i, row in filtered_df.iterrows():
+        with st.container():
+            cols = st.columns([2, 6, 2, 1])
+            cols[0].markdown(f"**{row['published'].strftime('%Y-%m-%d')}**")
+            cols[1].markdown(f"**{row['title']}**")
+            cols[2].markdown(f"[Read More]({row['link']})")
+            add_button = cols[3].button("➕", key=f"add_{i}")
+            if add_button:
+                if "review_articles" not in st.session_state:
+                    st.session_state["review_articles"] = []
+                st.session_state["review_articles"].append(row)
+                st.success(f"Article added to review: {row['title']}")
 
 else:
     st.write("No articles available for the selected sources and date range.")
@@ -158,4 +128,5 @@ if "review_articles" in st.session_state and st.session_state["review_articles"]
     # PDF and Email logic remains unchanged
 
 st.write("App finished setup.")
+
 
