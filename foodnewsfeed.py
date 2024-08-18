@@ -75,35 +75,49 @@ st.markdown("---")
 st.header("Selected Articles")
 
 if not filtered_df.empty:
-    # Create a dataframe with an extra column for the add buttons
-    def add_to_review_button(index):
-        return st.button("➕", key=f"add_{index}_to_review")
-
-    # Add a new column with buttons
-    filtered_df['Add to Review'] = filtered_df.index.to_series().apply(add_to_review_button)
-    
-    # Display the table with the Add to Review buttons
-    filtered_df['link'] = filtered_df['link'].apply(lambda x: f'<a href="{x}" target="_blank">Read More</a>')
-    
-    # Ensure correct alignment for the date column using CSS
+    # CSS to align the dates and style the buttons
     st.markdown("""
     <style>
     th, td {
         text-align: center;
         vertical-align: middle;
     }
+    .button {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 14px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        outline: none;
+        color: #fff;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px #999;
+    }
+    .button:hover {background-color: #3e8e41}
+    .button:active {
+        background-color: #3e8e41;
+        box-shadow: 0 2px #666;
+        transform: translateY(2px);
+    }
     </style>
     """, unsafe_allow_html=True)
 
-    st.write(filtered_df.to_html(escape=False, index=False, columns=["published", "title", "summary", "link", "Add to Review"]), unsafe_allow_html=True)
-
-    # Add selected articles to review in session_state
-    for index in filtered_df.index:
-        if st.session_state.get(f"add_{index}_to_review", False):
+    # Add a new column with buttons
+    def add_to_review_button(index):
+        if st.button("➕", key=f"add_{index}_to_review", help="Add to Review"):
             if "review_articles" not in st.session_state:
                 st.session_state["review_articles"] = []
             st.session_state["review_articles"].append(filtered_df.loc[index])
-            st.session_state[f"add_{index}_to_review"] = False
+
+    filtered_df['Add to Review'] = filtered_df.index.to_series().apply(add_to_review_button)
+
+    # Display the table with the Add to Review buttons
+    filtered_df['link'] = filtered_df['link'].apply(lambda x: f'<a href="{x}" target="_blank">Read More</a>')
+
+    st.write(filtered_df.to_html(escape=False, index=False, columns=["published", "title", "summary", "link", "Add to Review"]), unsafe_allow_html=True)
 
 else:
     st.write("No articles available for the selected sources and date range.")
@@ -144,5 +158,4 @@ if "review_articles" in st.session_state and st.session_state["review_articles"]
     # PDF and Email logic remains unchanged
 
 st.write("App finished setup.")
-
 
