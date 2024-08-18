@@ -43,7 +43,6 @@ with st.sidebar:
     st.write("Select the news sources:")
 
     feeds = list(rss_feeds.keys())
-    # Preselect "Food Quality & Safety" feed
     default_feeds = ["Food Quality & Safety"]
     selected_feeds = st.multiselect("Select Feeds:", feeds, default=default_feeds)
 
@@ -60,6 +59,10 @@ with st.sidebar:
         csv = review_df.to_csv(index=False)
         st.download_button(label="Download Review as CSV", data=csv, file_name="review.csv", mime="text/csv")
 
+    # Option to edit the review
+    if st.button("Edit Selected Articles for Report"):
+        st.session_state["edit_mode"] = True
+
 # Parse feeds based on selected sources
 feeds_df = parse_feeds(selected_feeds)
 
@@ -72,34 +75,27 @@ st.markdown("---")
 st.header("Selected Articles")
 
 if not filtered_df.empty:
-    # Add a column for "Add to Review" buttons
-    def generate_button_html(index):
-        return f'<button class="add-review-btn" onclick="window.dispatchEvent(new CustomEvent(\'add_to_review\', {{ detail: {index} }}))">➕</button>'
+    # Create a dataframe with an extra column for the add buttons
+    def add_to_review_button(index):
+        return st.button("➕", key=f"add_{index}_to_review")
 
-    filtered_df['Add to Review'] = filtered_df.index.to_series().apply(generate_button_html)
+    # Add a new column with buttons
+    filtered_df['Add to Review'] = filtered_df.index.to_series().apply(add_to_review_button)
     
-    # Display the table with the "Add to Review" buttons as the last column
+    # Display the table with the Add to Review buttons
     filtered_df['link'] = filtered_df['link'].apply(lambda x: f'<a href="{x}" target="_blank">Read More</a>')
-    st.write(filtered_df.to_html(escape=False, index=False, columns=["published", "title", "summary", "link", "Add to Review"]), unsafe_allow_html=True)
-
-    # Capture button click events using custom JavaScript
+    
+    # Ensure correct alignment for the date column using CSS
     st.markdown("""
-        <script>
-        const addReviewBtns = document.querySelectorAll('.add-review-btn');
-        addReviewBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const index = btn.getAttribute('onclick').match(/detail: (\d+)/)[1];
-                const evt = new CustomEvent('add_to_review', { detail: index });
-                window.dispatchEvent(evt);
-            });
-        });
-        window.addEventListener('add_to_review', event => {
-            const index = parseInt(event.detail);
-            console.log('Adding to review:', index);
-            window.streamlitAPI.rerun();
-        });
-        </script>
-        """, unsafe_allow_html=True)
+    <style>
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.write(filtered_df.to_html(escape=False, index=False, columns=["published", "title", "summary", "link", "Add to Review"]), unsafe_allow_html=True)
 
     # Add selected articles to review in session_state
     for index in filtered_df.index:
@@ -112,17 +108,33 @@ if not filtered_df.empty:
 else:
     st.write("No articles available for the selected sources and date range.")
 
-# Display selected articles for review
+# Display selected articles for review and allow editing
 if "review_articles" in st.session_state and st.session_state["review_articles"]:
     st.markdown("---")
     st.header("Your Review")
 
-    review_df = pd.DataFrame(st.session_state["review_articles"])
-    for i, article in review_df.iterrows():
-        st.markdown(f"### {i+1}. {article['title']}")
-        st.markdown(f"**Published on:** {article['published'].strftime('%Y-%m-%d')}")
-        st.markdown(f"{article['summary']}")
-        st.markdown(f"[Read More]({article['link']})")
+    if st.session_state.get("edit_mode", False):
+        st.write("Edit the articles below:")
+
+        review_df = pd.DataFrame(st.session_state["review_articles"])
+        for i, article in review_df.iterrows():
+            st.markdown(f"### {i+1}. {article['title']}")
+            edited_summary = st.text_area(f"Edit Summary for {i+1}", value=article['summary'])
+            review_df.at[i, 'summary'] = edited_summary
+            st.markdown(f"[Read More]({article['link']})")
+
+        if st.button("Save Edits"):
+            st.session_state["review_articles"] = review_df.to_dict('records')
+            st.session_state["edit_mode"] = False
+            st.success("Edits saved successfully!")
+
+    else:
+        review_df = pd.DataFrame(st.session_state["review_articles"])
+        for i, article in review_df.iterrows():
+            st.markdown(f"### {i+1}. {article['title']}")
+            st.markdown(f"**Published on:** {article['published'].strftime('%Y-%m-%d')}")
+            st.markdown(f"{article['summary']}")
+            st.markdown(f"[Read More]({article['link']})")
 
     st.markdown("---")
     review_text = st.text_area("Add your review here:", height=150)
@@ -132,6 +144,5 @@ if "review_articles" in st.session_state and st.session_state["review_articles"]
     # PDF and Email logic remains unchanged
 
 st.write("App finished setup.")
-
 
 
