@@ -43,7 +43,9 @@ with st.sidebar:
     st.write("Select the news sources:")
 
     feeds = list(rss_feeds.keys())
-    selected_feeds = st.multiselect("Select Feeds:", feeds, default=feeds)  # All feeds selected by default
+    # Preselect "Food Quality & Safety" feed
+    default_feeds = ["Food Quality & Safety"]
+    selected_feeds = st.multiselect("Select Feeds:", feeds, default=default_feeds)
 
     # Date filter
     min_date = st.date_input("Start date", value=pd.to_datetime("2023-01-01"))
@@ -71,19 +73,41 @@ st.header("Selected Articles")
 
 if not filtered_df.empty:
     # Add a column for "Add to Review" buttons
-    def add_to_review_button(row):
-        # Create a unique key for each button based on the row index
-        button_label = f"Add {row.name}"
-        if st.button("➕", key=button_label, help="Add to Review"):
-            st.session_state["review_articles"].append(row)
+    def generate_button_html(index):
+        return f'<button class="add-review-btn" onclick="window.dispatchEvent(new CustomEvent(\'add_to_review\', {{ detail: {index} }}))">➕</button>'
 
-    filtered_df["Add to Review"] = filtered_df.apply(add_to_review_button, axis=1)
+    filtered_df['Add to Review'] = filtered_df.index.to_series().apply(generate_button_html)
     
     # Display the table with the "Add to Review" buttons as the last column
-    filtered_df_display = filtered_df[["published", "title", "summary", "link"]]
-    filtered_df_display['link'] = filtered_df_display['link'].apply(lambda x: f'<a href="{x}" target="_blank">Read More</a>')
-    
-    st.write(filtered_df_display.to_html(escape=False, index=False), unsafe_allow_html=True)
+    filtered_df['link'] = filtered_df['link'].apply(lambda x: f'<a href="{x}" target="_blank">Read More</a>')
+    st.write(filtered_df.to_html(escape=False, index=False, columns=["published", "title", "summary", "link", "Add to Review"]), unsafe_allow_html=True)
+
+    # Capture button click events using custom JavaScript
+    st.markdown("""
+        <script>
+        const addReviewBtns = document.querySelectorAll('.add-review-btn');
+        addReviewBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = btn.getAttribute('onclick').match(/detail: (\d+)/)[1];
+                const evt = new CustomEvent('add_to_review', { detail: index });
+                window.dispatchEvent(evt);
+            });
+        });
+        window.addEventListener('add_to_review', event => {
+            const index = parseInt(event.detail);
+            console.log('Adding to review:', index);
+            window.streamlitAPI.rerun();
+        });
+        </script>
+        """, unsafe_allow_html=True)
+
+    # Add selected articles to review in session_state
+    for index in filtered_df.index:
+        if st.session_state.get(f"add_{index}_to_review", False):
+            if "review_articles" not in st.session_state:
+                st.session_state["review_articles"] = []
+            st.session_state["review_articles"].append(filtered_df.loc[index])
+            st.session_state[f"add_{index}_to_review"] = False
 
 else:
     st.write("No articles available for the selected sources and date range.")
@@ -108,5 +132,6 @@ if "review_articles" in st.session_state and st.session_state["review_articles"]
     # PDF and Email logic remains unchanged
 
 st.write("App finished setup.")
+
 
 
