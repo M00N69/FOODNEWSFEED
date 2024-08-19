@@ -107,7 +107,7 @@ if not filtered_df.empty:
             cols[1].markdown(f"**{row['title']}**")
             cols[2].markdown(f"[Read More]({row['link']})")
             add_button = cols[3].button("➕", key=f"add_{i}")
-            summarize_button = cols[4].button("Summarize", key=f"summarize_{i}")
+            summarize_button = cols[4].button("Summary", key=f"summarize_{i}")
             
             if add_button:
                 if "review_articles" not in st.session_state:
