@@ -84,11 +84,15 @@ with st.sidebar:
 
     # Gestion des boutons pour afficher le guide ou revenir à la vue principale
     if st.session_state['showing_readme']:
-        if st.button("🔙 Back to Main View"):
+        back_clicked = st.button("🔙 Back to Main View")
+        if back_clicked:
             st.session_state['showing_readme'] = False
+            st.experimental_rerun()
     else:
-        if st.button("📄 Show Application Guide"):
+        guide_clicked = st.button("📄 Show Application Guide")
+        if guide_clicked:
             st.session_state['showing_readme'] = True
+            st.experimental_rerun()
 
     if not st.session_state['showing_readme']:
         st.write("Select the news sources:")
