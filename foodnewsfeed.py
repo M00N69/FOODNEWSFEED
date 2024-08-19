@@ -10,7 +10,7 @@ import requests
 st.set_page_config(layout="wide")
 
 # URL brute du README.md sur GitHub (ou vous pouvez ajouter le contenu directement ici)
-readme_url = "https://raw.githubusercontent.com/yourusername/your-repo/main/README.md"
+readme_url = "https://raw.githubusercontent.com/M00N69/FOODNEWSFEED/main/README.md"
 
 def load_readme(url):
     response = requests.get(url)
