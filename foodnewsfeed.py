@@ -9,15 +9,19 @@ import requests
 # Configurer la page pour un affichage en mode large
 st.set_page_config(layout="wide")
 
-# URL brute du README.md sur GitHub (ou vous pouvez ajouter le contenu directement ici)
-readme_url = "https://raw.githubusercontent.com/yourusername/your-repo/main/README.md"
-
-def load_readme(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.text
-    else:
-        return "Sorry, we couldn't load the README file from GitHub."
+# Define your list of RSS feeds
+rss_feeds = {
+    "EU Legislation": "https://eur-lex.europa.eu/EN/display-feed.rss?myRssId=e1Wry6%2FANeUpe1f1%2BCToXcHk31CTyaJK",
+    "Food safety Magazine": "https://www.food-safety.com/rss/topic/296",
+    "Food Navigator": "https://www.foodnavigator.com/Info/Latest-News",
+    "EFSA": "https://www.efsa.europa.eu/en/all/rss",
+    "EU Food Safety": "https://food.ec.europa.eu/node/2/rss_en",
+    "Food Quality & Safety": "https://www.foodqualityandsafety.com/category/eupdate/feed/",
+    "Food Safety News": "https://feeds.lexblog.com/foodsafetynews/mRcs",
+    "Food Manufacture": "https://www.foodmanufacture.co.uk/Info/FoodManufacture-RSS",
+    "Food Packaging Forum": "https://www.foodpackagingforum.org/news/feed/",
+    "ANSES": "https://www.anses.fr/fr/flux-actualites.rss"
+}
 
 # Function to parse all RSS feeds
 def parse_feeds(selected_feeds):
