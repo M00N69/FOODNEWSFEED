@@ -3,6 +3,7 @@ import feedparser
 import pandas as pd
 from datetime import datetime
 from pytz import timezone
+from groq import Groq
 
 # Configurer la page pour un affichage en mode large
 st.set_page_config(layout="wide")
@@ -36,6 +37,29 @@ def parse_feeds(selected_feeds):
                 })
     df = pd.DataFrame(data).sort_values(by="published", ascending=False)  # Sort by date, latest first
     return df
+
+# Function to summarize the content of an article via Groq
+def summarize_article_with_groq(url):
+    client = get_groq_client()
+    messages = [
+        {"role": "system", "content": "Please summarize the following article:"},
+        {"role": "user", "content": url}
+    ]
+
+    # Choisir un modèle Groq
+    model_id = "mixtral-8x7b-32768"  # Assurez-vous que ce modèle peut gérer des URL
+
+    # Appel à l'API Groq
+    chat_completion = client.chat.completions.create(
+        messages=messages,
+        model=model_id
+    )
+
+    return chat_completion.choices[0].message.content
+
+def get_groq_client():
+    """Initialise et renvoie un client Groq avec la clé API."""
+    return Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 # Sidebar for navigation
 with st.sidebar:
@@ -78,16 +102,22 @@ if not filtered_df.empty:
     # Display articles manually with a button to add each one to the review
     for i, row in filtered_df.iterrows():
         with st.container():
-            cols = st.columns([2, 6, 2, 1])
+            cols = st.columns([2, 6, 2, 1, 1])
             cols[0].markdown(f"**{row['published'].strftime('%Y-%m-%d')}**")
             cols[1].markdown(f"**{row['title']}**")
             cols[2].markdown(f"[Read More]({row['link']})")
             add_button = cols[3].button("➕", key=f"add_{i}")
+            summarize_button = cols[4].button("Summarize", key=f"summarize_{i}")
+            
             if add_button:
                 if "review_articles" not in st.session_state:
                     st.session_state["review_articles"] = []
                 st.session_state["review_articles"].append(row)
                 st.success(f"Article added to review: {row['title']}")
+            
+            if summarize_button:
+                summary = summarize_article_with_groq(row['link'])
+                st.expander(f"Summary for {row['title']}").write(summary)
 
 else:
     st.write("No articles available for the selected sources and date range.")
