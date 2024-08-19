@@ -11,6 +11,8 @@ st.set_page_config(layout="wide")
 # Define your list of RSS feeds
 rss_feeds = {
     "EU Legislation": "https://eur-lex.europa.eu/EN/display-feed.rss?myRssId=e1Wry6%2FANeUpe1f1%2BCToXcHk31CTyaJK",
+    "Food safety Magazine": "https://www.food-safety.com/rss/topic/296",
+    "Food Navigator": "https://www.foodnavigator.com/Info/Latest-News",
     "EFSA": "https://www.efsa.europa.eu/en/all/rss",
     "EU Food Safety": "https://food.ec.europa.eu/node/2/rss_en",
     "Food Quality & Safety": "https://www.foodqualityandsafety.com/category/eupdate/feed/",
