@@ -9,6 +9,16 @@ import requests
 # Configurer la page pour un affichage en mode large
 st.set_page_config(layout="wide")
 
+# URL brute du README.md sur GitHub (ou vous pouvez ajouter le contenu directement ici)
+readme_url = "https://raw.githubusercontent.com/yourusername/your-repo/main/README.md"
+
+def load_readme(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.text
+    else:
+        return "Sorry, we couldn't load the README file from GitHub."
+
 # Define your list of RSS feeds
 rss_feeds = {
     "EU Legislation": "https://eur-lex.europa.eu/EN/display-feed.rss?myRssId=e1Wry6%2FANeUpe1f1%2BCToXcHk31CTyaJK",
@@ -68,39 +78,44 @@ def get_groq_client():
 with st.sidebar:
     st.header("Navigation")
 
-    # Bouton pour afficher les explications de l'application
-    show_readme = st.button("📄 Show Application Guide")
-    
-    if show_readme:
-        st.session_state['showing_readme'] = True
-    elif st.button("🔙 Back to Main View"):
+    # Initialisation de la session state si elle n'existe pas
+    if 'showing_readme' not in st.session_state:
         st.session_state['showing_readme'] = False
 
-    st.write("Select the news sources:")
+    # Bouton pour afficher les explications de l'application
+    if not st.session_state['showing_readme']:
+        if st.button("📄 Show Application Guide"):
+            st.session_state['showing_readme'] = True
+    else:
+        if st.button("🔙 Back to Main View"):
+            st.session_state['showing_readme'] = False
 
-    feeds = list(rss_feeds.keys())
-    default_feeds = ["Food Quality & Safety"]
-    selected_feeds = st.multiselect("Select Feeds:", feeds, default=default_feeds)
+    if not st.session_state['showing_readme']:
+        st.write("Select the news sources:")
 
-    # Date filter
-    min_date = st.date_input("Start date", value=pd.to_datetime("2023-01-01"))
-    max_date = st.date_input("End date", value=datetime.now().date())
+        feeds = list(rss_feeds.keys())
+        default_feeds = ["Food Quality & Safety"]
+        selected_feeds = st.multiselect("Select Feeds:", feeds, default=default_feeds)
 
-    paris_timezone = timezone('Europe/Paris')
-    st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
+        # Date filter
+        min_date = st.date_input("Start date", value=pd.to_datetime("2023-01-01"))
+        max_date = st.date_input("End date", value=datetime.now().date())
 
-    # Option to download the selected review as CSV
-    if "review_articles" in st.session_state and st.session_state["review_articles"]:
-        review_df = pd.DataFrame(st.session_state["review_articles"])
-        csv = review_df.to_csv(index=False)
-        st.download_button(label="Download Review as CSV", data=csv, file_name="review.csv", mime="text/csv")
+        paris_timezone = timezone('Europe/Paris')
+        st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
 
-    # Option to edit the review
-    if st.button("Edit Selected Articles for Report"):
-        st.session_state["edit_mode"] = True
+        # Option to download the selected review as CSV
+        if "review_articles" in st.session_state and st.session_state["review_articles"]:
+            review_df = pd.DataFrame(st.session_state["review_articles"])
+            csv = review_df.to_csv(index=False)
+            st.download_button(label="Download Review as CSV", data=csv, file_name="review.csv", mime="text/csv")
+
+        # Option to edit the review
+        if st.button("Edit Selected Articles for Report"):
+            st.session_state["edit_mode"] = True
 
 # Main section to display either the README or the articles
-if st.session_state.get('showing_readme', False):
+if st.session_state['showing_readme']:
     # Load and display the README
     readme_content = load_readme(readme_url)
     st.markdown(readme_content)
@@ -175,5 +190,4 @@ else:
         # PDF and Email logic remains unchanged
 
     st.write("App finished setup.")
-
 
