@@ -3,3 +3,4 @@ feedparser
 pandas
 reportlab
 pytz
+groq
