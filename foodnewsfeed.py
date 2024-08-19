@@ -84,16 +84,13 @@ with st.sidebar:
 
     # Gestion des boutons pour afficher le guide ou revenir à la vue principale
     if st.session_state['showing_readme']:
-        back_clicked = st.button("🔙 Back to Main View")
-        if back_clicked:
+        if st.button("🔙 Back to Main View"):
             st.session_state['showing_readme'] = False
-            st.experimental_rerun()
     else:
-        guide_clicked = st.button("📄 Show Application Guide")
-        if guide_clicked:
+        if st.button("📄 Show Application Guide"):
             st.session_state['showing_readme'] = True
-            st.experimental_rerun()
 
+    # Si le guide est affiché, on ne montre pas le reste des options
     if not st.session_state['showing_readme']:
         st.write("Select the news sources:")
 
@@ -194,4 +191,3 @@ else:
         # PDF and Email logic remains unchanged
 
     st.write("App finished setup.")
-
