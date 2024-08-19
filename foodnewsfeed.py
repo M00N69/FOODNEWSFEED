@@ -82,13 +82,13 @@ with st.sidebar:
     if 'showing_readme' not in st.session_state:
         st.session_state['showing_readme'] = False
 
-    # Bouton pour afficher les explications de l'application
-    if not st.session_state['showing_readme']:
-        if st.button("📄 Show Application Guide"):
-            st.session_state['showing_readme'] = True
-    else:
+    # Gestion des boutons pour afficher le guide ou revenir à la vue principale
+    if st.session_state['showing_readme']:
         if st.button("🔙 Back to Main View"):
             st.session_state['showing_readme'] = False
+    else:
+        if st.button("📄 Show Application Guide"):
+            st.session_state['showing_readme'] = True
 
     if not st.session_state['showing_readme']:
         st.write("Select the news sources:")
