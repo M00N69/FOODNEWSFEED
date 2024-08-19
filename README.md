@@ -1,53 +1,47 @@
-# Food Safety News & Reviews Application
+# Food Safety News & Reviews
 
 ## Overview
 
-The **Food Safety News & Reviews** application is a Streamlit-based tool designed to aggregate and manage food safety-related news from multiple RSS feeds. Users can view, filter, and select articles from various sources to create a personalized review report. The app supports customization of the selected articles and provides options to download or edit the review.
+The **Food Safety News & Reviews** application is a tool designed to help you stay up-to-date with the latest news in food safety. It aggregates articles from various trusted RSS feeds, allows you to review and summarize them, and provides options to download your curated list of articles.
 
-## Features
+## How to Use the Application
 
-- **Multiple RSS Feeds**: The app aggregates articles from multiple RSS feeds, including EU Legislation, EFSA, EU Food Safety, Food Quality & Safety, Food Safety News, and others.
-  
-- **Customizable Feed Selection**: Users can select which feeds to include in their news aggregation from the sidebar, with "Food Quality & Safety" pre-selected by default. Other feeds can be added or removed as needed.
-  
-- **Date Filtering**: Users can filter articles based on a specific date range, ensuring that only relevant articles are displayed.
+### 1. Select News Sources
+- On the left sidebar, you will see a list of available news sources (RSS feeds). 
+- By default, some feeds are already selected, but you can choose which ones you want to include by checking or unchecking the boxes.
 
-- **Article Display**: Articles are displayed in a structured format that includes the publication date, title, summary, and a link to the full article. Users can easily browse through the latest updates.
+### 2. Filter Articles by Date
+- Below the feed selection, you can filter the articles by date.
+- Choose a start date and an end date to see only the articles published within that period.
 
-- **Add to Review**: Each article has an associated "+" button, allowing users to add the article to a personalized review list. This feature is useful for collecting articles for later reference or creating a report.
+### 3. Browse and Review Articles
+- The main section of the app displays a list of articles based on your selected feeds and date filters.
+- For each article, you can:
+  - **Read More**: Click the link to view the full article on the original website.
+  - **Add to Review**: Click the "+" button to add the article to your review list.
+  - **Summarize**: Click the "Summarize" button to generate a summary of the article using the Groq API. The summary will be displayed below the article.
 
-- **Edit Mode**: Users can enter an edit mode to modify the summaries of selected articles in their review list, allowing for tailored commentary or notes.
+### 4. Manage Your Review List
+- After adding articles to your review list, you can:
+  - **Edit Summaries**: Modify the summaries of the articles in your review list.
+  - **Download Review**: Download your curated list of articles and summaries as a CSV file.
 
-- **Review Export**: Once articles are selected for review, users can download the list as a CSV file or use it to generate a report.
+## Key Features
 
-- **Download Options**: The app provides the option to download the final review as a CSV file, making it easy to share or archive.
+- **Customizable News Feed**: Select and filter news sources to focus on what matters to you.
+- **Date Filtering**: Narrow down the articles by their publication dates.
+- **Summarization**: Generate quick summaries of articles using the Groq API.
+- **Review and Download**: Compile a list of important articles, edit their summaries, and download them for further reference.
 
-## How to Use
+## No Installation Required
 
-1. **Select Feeds**: Start by selecting the RSS feeds from which you want to aggregate news. By default, "Food Quality & Safety" is selected, but you can add or remove feeds via the sidebar.
+This application is hosted on Streamlit Cloud, so there is nothing to install. Simply access the application via the provided link and start using it immediately.
 
-2. **Filter by Date**: Use the date filters to specify the range of articles you want to see. The articles will be filtered according to the dates you select.
+## Feedback
 
-3. **Browse Articles**: Scroll through the list of articles displayed in the main area. Each article will show the publication date, title, summary, and a link to the full content.
+We value your feedback! If you have any suggestions or encounter any issues, please let us know.
 
-4. **Add Articles to Review**: Click the "+" button next to any article you wish to add to your personalized review. The article will be added to your review list.
+---
 
-5. **Edit Review**: If you want to customize the summaries of the articles you've selected, click "Edit Selected Articles for Report" in the sidebar. This will allow you to modify the text for each article in your review list.
+Enjoy using **Food Safety News & Reviews** to stay informed and organized!
 
-6. **Download or Share**: Once you're satisfied with your review, you can download it as a CSV file by clicking "Download Review as CSV" in the sidebar. This file includes all selected articles with their titles, summaries, and links.
-
-## Installation
-
-To run this application locally, follow these steps:
-
-1. Clone the repository.
-2. Install the required dependencies with `pip install -r requirements.txt`.
-3. Run the application with `streamlit run app.py`.
-
-## Contributing
-
-Contributions are welcome! Feel free to submit a pull request or report issues.
-
-## License
-
-This project is licensed under the MIT License.
