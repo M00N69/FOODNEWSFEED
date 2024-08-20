@@ -30,7 +30,7 @@ rss_feeds = {
     "Food Safety News": "https://feeds.lexblog.com/foodsafetynews/mRcs",
     "Food Manufacture": "https://www.foodmanufacture.co.uk/Info/FoodManufacture-RSS",
     "Food Packaging Forum": "https://www.foodpackagingforum.org/news/feed/",
-    "INRS, sécurité": "https://www.inrs.fr/rss/?feed=actualites",
+    "INRS secu": "https://www.inrs.fr/rss/?feed=actualites",
     "ANSES": "https://www.anses.fr/fr/flux-actualites.rss"
 }
 
