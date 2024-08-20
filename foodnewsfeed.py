@@ -23,6 +23,7 @@ def load_readme(url):
 rss_feeds = {
     "EU Legislation": "https://eur-lex.europa.eu/EN/display-feed.rss?myRssId=e1Wry6%2FANeUpe1f1%2BCToXcHk31CTyaJK",
     "Food safety Magazine": "https://www.food-safety.com/rss/topic/296",
+    "Food SafetyTech": "https://foodsafetytech.com/feed/",
     "Food Navigator": "https://www.foodnavigator.com/Info/Latest-News",
     "EFSA": "https://www.efsa.europa.eu/en/all/rss",
     "EU Food Safety": "https://food.ec.europa.eu/node/2/rss_en",
