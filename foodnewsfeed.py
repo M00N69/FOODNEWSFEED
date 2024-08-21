@@ -44,7 +44,7 @@ def parse_feeds(selected_feeds):
     for feed_name, feed_url in rss_feeds.items():
         if feed_name in selected_feeds:
             parsed_feed = feedparser.parse(feed_url)
-            for entry in parsed_feed.entries[:8]:  # Get the latest 8 articles
+            for entry in parsed_feed.entries[:25]:  # Get the latest 25 articles
                 
                 # Extract date from 'description' if 'published_parsed' is not available
                 if hasattr(entry, 'published_parsed'):
