@@ -78,7 +78,7 @@ def summarize_article_with_groq(url):
     ]
 
     # Choisir un modèle Groq
-    model_id = "llama-3.1-70b-versatile"  # Assurez-vous que ce modèle peut gérer des URL
+    model_id = "llama-3.1-8b-instant"  # Assurez-vous que ce modèle peut gérer des URL
 
     # Appel à l'API Groq
     chat_completion = client.chat.completions.create(
