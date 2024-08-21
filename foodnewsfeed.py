@@ -5,6 +5,7 @@ from datetime import datetime
 from pytz import timezone
 from groq import Groq
 import requests
+import re
 
 # Configurer la page pour un affichage en mode large
 st.set_page_config(layout="wide")
@@ -44,14 +45,28 @@ def parse_feeds(selected_feeds):
         if feed_name in selected_feeds:
             parsed_feed = feedparser.parse(feed_url)
             for entry in parsed_feed.entries[:8]:  # Get the latest 8 articles
+                
+                # Extract date from 'description' if 'published_parsed' is not available
+                if hasattr(entry, 'published_parsed'):
+                    published_date = datetime(*entry.published_parsed[:6]).strftime("%Y-%m-%d")
+                else:
+                    # Attempt to extract date from description using regex
+                    description = entry.description if hasattr(entry, 'description') else ""
+                    date_match = re.search(r'(\d{2}/\d{2}/\d{4})', description)
+                    if date_match:
+                        published_date = datetime.strptime(date_match.group(1), "%d/%m/%Y").strftime("%Y-%m-%d")
+                    else:
+                        published_date = "Unknown"
+                
                 data.append({
                     "feed": feed_name,
                     "title": entry.title,
                     "link": entry.link,
                     "summary": entry.summary,
-                    "published": datetime(*entry.published_parsed[:6]).strftime("%Y-%m-%d"),
+                    "published": published_date,
                     "image": entry.get("media_content", [None])[0].get("url", None) if "media_content" in entry else None
                 })
+    
     df = pd.DataFrame(data).sort_values(by="published", ascending=False)  # Sort by date, latest first
     return df
 
@@ -129,7 +144,7 @@ else:
     feeds_df = parse_feeds(selected_feeds)
 
     # Filter articles by date
-    feeds_df['published'] = pd.to_datetime(feeds_df['published'])
+    feeds_df['published'] = pd.to_datetime(feeds_df['published'], errors='coerce')
     filtered_df = feeds_df[(feeds_df['published'] >= pd.to_datetime(min_date)) & (feeds_df['published'] <= pd.to_datetime(max_date))]
 
     st.markdown("---")
@@ -140,7 +155,7 @@ else:
         for i, row in filtered_df.iterrows():
             with st.container():
                 cols = st.columns([2, 6, 2, 1, 1])
-                cols[0].markdown(f"**{row['published'].strftime('%Y-%m-%d')}**")
+                cols[0].markdown(f"**{row['published'].strftime('%Y-%m-%d') if pd.notnull(row['published']) else 'Unknown'}**")
                 cols[1].markdown(f"**{row['title']}**")
                 cols[2].markdown(f"[Read More]({row['link']})")
                 add_button = cols[3].button("➕", key=f"add_{i}")
@@ -183,7 +198,7 @@ else:
             review_df = pd.DataFrame(st.session_state["review_articles"])
             for i, article in review_df.iterrows():
                 st.markdown(f"### {i+1}. {article['title']}")
-                st.markdown(f"**Published on:** {article['published'].strftime('%Y-%m-%d')}")
+                st.markdown(f"**Published on:** {article['published'].strftime('%Y-%m-%d') if pd.notnull(article['published']) else 'Unknown'}")
                 st.markdown(f"{article['summary']}")
                 st.markdown(f"[Read More]({article['link']})")
 
@@ -195,3 +210,4 @@ else:
         # PDF and Email logic remains unchanged
 
     st.write("App finished setup.")
+
