@@ -26,6 +26,8 @@ rss_feeds = {
     "Food SafetyTech": "https://foodsafetytech.com/feed/",
     "Food Navigator": "https://www.foodnavigator.com/Info/Latest-News",
     "Food GOV UK": "https://www.food.gov.uk/rss-feed/news",
+    "US CDC": "https://www2c.cdc.gov/podcasts/createrss.asp?c=146",
+    "CODEX Hygiene meeting": "https://www.fao.org/fao-who-codexalimentarius/meetings/detail/rss/fr/?meeting=CCFH&session=54",
     "RASFF EU Feed": "https://webgate.ec.europa.eu/rasff-window/backend/public/consumer/rss/all/",
     "EFSA": "https://www.efsa.europa.eu/en/all/rss",
     "EU Food Safety": "https://food.ec.europa.eu/node/2/rss_en",
