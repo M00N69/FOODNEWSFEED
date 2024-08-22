@@ -39,8 +39,7 @@ rss_feeds = {
     "Frech Recalls RAPPELCONSO": "https://rappel.conso.gouv.fr/rss?categorie=01",
     "INRS secu": "https://www.inrs.fr/rss/?feed=actualites",
     "ANSES": "https://www.anses.fr/fr/flux-actualites.rss",
-    "New Food Magazine": "https://feeds.feedburner.com/NewFoodMagazine",
-    "Food Ingredient fisrt": "https://resource.innovadatabase.com/rss/fifnews.xml"
+    "Food Ingredient first": "https://resource.innovadatabase.com/rss/fifnews.xml"
 }
 
 # Function to parse all RSS feeds
