@@ -10,7 +10,7 @@ import re
 # Configurer la page pour un affichage en mode large
 st.set_page_config(layout="wide")
 
-# Custom CSS for changing sidebar background color
+# Custom CSS for changing sidebar background color and resizing the banner
 st.markdown(
     """
     <style>
@@ -28,19 +28,12 @@ st.markdown(
     [data-testid="stSidebar"] .css-17eq0hr {
         color: black;
     }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
-# Bannière avec le logo
-st.markdown(
-    """
-    <style>
+    /* Banner styling */
     .banner {
         background-image: url('https://github.com/M00N69/BUSCAR/blob/main/logo%2002%20copie.jpg?raw=true');
         background-size: cover;
-        padding: 50px;
+        padding: 75px;
         text-align: center;
     }
     .dataframe td {
