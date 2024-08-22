@@ -16,7 +16,7 @@ st.markdown(
     <style>
     /* Sidebar background color */
     [data-testid="stSidebar"] {
-        background-color: #add8e6; /* Light blue color */
+        background-color: ##2398B2;  
     }
 
     /* Sidebar header text color (optional) */
