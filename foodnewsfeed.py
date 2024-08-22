@@ -10,6 +10,29 @@ import re
 # Configurer la page pour un affichage en mode large
 st.set_page_config(layout="wide")
 
+# Custom CSS for changing sidebar background color
+st.markdown(
+    """
+    <style>
+    /* Sidebar background color */
+    [data-testid="stSidebar"] {
+        background-color: #add8e6; /* Light blue color */
+    }
+
+    /* Sidebar header text color (optional) */
+    [data-testid="stSidebar"] .css-1lcbmhc {
+        color: black;
+    }
+    
+    /* Sidebar widget text color (optional) */
+    [data-testid="stSidebar"] .css-17eq0hr {
+        color: black;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # URL brute du README.md sur GitHub (ou vous pouvez ajouter le contenu directement ici)
 readme_url = "https://raw.githubusercontent.com/M00N69/FOODNEWSFEED/main/README.md"
 
