@@ -20,7 +20,13 @@ The **Food Safety News & Reviews** application is a tool designed to help you st
   - **Read More**: Click the link to view the full article on the original website.
   - **Add to Review**: Click the "+" button to add the article to your review list.
   - **Summarize**: Click the "Summarize" button to generate a summary of the article using the Groq API. 
-  **The summary will be displayed below the article IF POSSIBLE without restriction from the site** 
+  **Please note that the summary will be displayed below the article IF POSSIBLE. However, in some cases, due to restrictions from the website hosting the article, it might not be possible to generate the summary. This could happen if the site blocks automated access or if the content is behind a paywall.
+
+If you encounter this issue:
+
+Please be patient and try clicking the "Summarize" button again after a moment.
+Alternatively, you can click on the "Read more" link provided directly in the article to view the full content on the original website.
+We appreciate your understanding and hope this feature enhances your experience!** 
 
 ### 4. Manage Your Review List
 - After adding articles to your review list, you can:
