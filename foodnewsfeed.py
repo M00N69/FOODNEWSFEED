@@ -51,7 +51,7 @@ def load_readme(url):
         return "Sorry, we couldn't load the README file from GitHub."
 
 # Toggle button to switch between README and main content
-if st.button("Toggle README"):
+if st.button("Toggle About this APP"):
     st.session_state['showing_readme'] = not st.session_state['showing_readme']
 
 # Define your list of RSS feeds
