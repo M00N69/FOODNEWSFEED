@@ -7,29 +7,16 @@ from groq import Groq
 import requests
 import re
 
-# Configurer la page pour un affichage en mode large
+# Configuring the page layout
 st.set_page_config(layout="wide")
 
-# Custom CSS for changing sidebar background color and resizing the banner
+# Custom CSS with corrected color code
 st.markdown(
     """
     <style>
-    /* Sidebar background color */
     [data-testid="stSidebar"] {
-        background-color: ##2398B2;  
+        background-color: #2398B2;  
     }
-
-    /* Sidebar header text color (optional) */
-    [data-testid="stSidebar"] .css-1lcbmhc {
-        color: black;
-    }
-    
-    /* Sidebar widget text color (optional) */
-    [data-testid="stSidebar"] .css-17eq0hr {
-        color: black;
-    }
-
-    /* Banner styling */
     .banner {
         background-image: url('https://github.com/M00N69/BUSCAR/blob/main/logo%2002%20copie.jpg?raw=true');
         background-size: cover;
@@ -45,6 +32,13 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# Initialize session state variables
+if 'showing_readme' not in st.session_state:
+    st.session_state['showing_readme'] = True
+
+if 'review_articles' not in st.session_state:
+    st.session_state['review_articles'] = []
 
 # URL brute du README.md sur GitHub (ou vous pouvez ajouter le contenu directement ici)
 readme_url = "https://raw.githubusercontent.com/M00N69/FOODNEWSFEED/main/README.md"
