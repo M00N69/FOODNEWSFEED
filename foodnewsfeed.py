@@ -33,6 +33,26 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Bannière avec le logo
+st.markdown(
+    """
+    <style>
+    .banner {
+        background-image: url('https://github.com/M00N69/BUSCAR/blob/main/logo%2002%20copie.jpg?raw=true');
+        background-size: cover;
+        padding: 50px;
+        text-align: center;
+    }
+    .dataframe td {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+    }
+    </style>
+    <div class="banner"></div>
+    """,
+    unsafe_allow_html=True
+)
+
 # URL brute du README.md sur GitHub (ou vous pouvez ajouter le contenu directement ici)
 readme_url = "https://raw.githubusercontent.com/M00N69/FOODNEWSFEED/main/README.md"
 
