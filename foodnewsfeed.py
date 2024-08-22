@@ -36,7 +36,8 @@ rss_feeds = {
     "Food Safety News": "https://feeds.lexblog.com/foodsafetynews/mRcs",
     "Food Manufacture": "https://www.foodmanufacture.co.uk/Info/FoodManufacture-RSS",
     "Food Packaging Forum": "https://www.foodpackagingforum.org/news/feed/",
-    "Frech Recalls RAPPELCONSO": "https://rappel.conso.gouv.fr/rss?categorie=01",
+    "French Recalls RAPPELCONSO": "https://rappel.conso.gouv.fr/rss?categorie=01",
+    "Legifrance Alimentaire": "https://legifrss.org/latest?nature=decret&q=alimentaire",
     "INRS secu": "https://www.inrs.fr/rss/?feed=actualites",
     "ANSES": "https://www.anses.fr/fr/flux-actualites.rss",
     "Food Ingredient first": "https://resource.innovadatabase.com/rss/fifnews.xml"
