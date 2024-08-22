@@ -56,6 +56,11 @@ def load_readme(url):
     else:
         return "Sorry, we couldn't load the README file from GitHub."
 
+# After the banner, replace the button with an expander for "About this App"
+with st.expander("📄 About this App", expanded=False):
+    readme_content = load_readme(readme_url)
+    st.markdown(readme_content)
+
 # Define your list of RSS feeds
 rss_feeds = {
     "Food safety Magazine": "https://www.food-safety.com/rss/topic/296",
@@ -135,46 +140,32 @@ def get_groq_client():
     """Initialise et renvoie un client Groq avec la clé API."""
     return Groq(api_key=st.secrets["GROQ_API_KEY"])
 
-# Sidebar for navigation
+# Sidebar navigation (now without the button logic for showing/hiding the guide)
 with st.sidebar:
     st.header("Navigation")
 
-    # Initialisation de la session state si elle n'existe pas
-    if 'showing_readme' not in st.session_state:
-        st.session_state['showing_readme'] = False
+    st.write("Select the news sources:")
+    
+    feeds = list(rss_feeds.keys())
+    default_feeds = ["Food Quality & Safety"]
+    selected_feeds = st.multiselect("Select Feeds:", feeds, default=default_feeds)
 
-    # Gestion des boutons pour afficher le guide ou revenir à la vue principale
-    if st.session_state['showing_readme']:
-        if st.button("🔙 Back to Main View"):
-            st.session_state['showing_readme'] = False
-    else:
-        if st.button("📄 Show Application Guide"):
-            st.session_state['showing_readme'] = True
+    # Date filter
+    min_date = st.date_input("Start date", value=pd.to_datetime("2023-01-01"))
+    max_date = st.date_input("End date", value=datetime.now().date())
 
-    # Si le guide est affiché, on ne montre pas le reste des options
-    if not st.session_state['showing_readme']:
-        st.write("Select the news sources:")
+    paris_timezone = timezone('Europe/Paris')
+    st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
 
-        feeds = list(rss_feeds.keys())
-        default_feeds = ["Food Quality & Safety"]
-        selected_feeds = st.multiselect("Select Feeds:", feeds, default=default_feeds)
+    # Option to download the selected review as CSV
+    if "review_articles" in st.session_state and st.session_state["review_articles"]:
+        review_df = pd.DataFrame(st.session_state["review_articles"])
+        csv = review_df.to_csv(index=False)
+        st.download_button(label="Download Review as CSV", data=csv, file_name="review.csv", mime="text/csv")
 
-        # Date filter
-        min_date = st.date_input("Start date", value=pd.to_datetime("2023-01-01"))
-        max_date = st.date_input("End date", value=datetime.now().date())
-
-        paris_timezone = timezone('Europe/Paris')
-        st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
-
-        # Option to download the selected review as CSV
-        if "review_articles" in st.session_state and st.session_state["review_articles"]:
-            review_df = pd.DataFrame(st.session_state["review_articles"])
-            csv = review_df.to_csv(index=False)
-            st.download_button(label="Download Review as CSV", data=csv, file_name="review.csv", mime="text/csv")
-
-        # Option to edit the review
-        if st.button("Edit Selected Articles for Report"):
-            st.session_state["edit_mode"] = True
+    # Option to edit the review
+    if st.button("Edit Selected Articles for Report"):
+        st.session_state["edit_mode"] = True
 
 # Main section to display either the README or the articles
 if st.session_state['showing_readme']:
