@@ -50,10 +50,9 @@ def load_readme(url):
     else:
         return "Sorry, we couldn't load the README file from GitHub."
 
-# After the banner, replace the button with an expander for "About this App"
-with st.expander("📄 About this App", expanded=False):
-    readme_content = load_readme(readme_url)
-    st.markdown(readme_content)
+# Toggle button to switch between README and main content
+if st.button("Toggle README"):
+    st.session_state['showing_readme'] = not st.session_state['showing_readme']
 
 # Define your list of RSS feeds
 rss_feeds = {
@@ -119,10 +118,10 @@ def summarize_article_with_groq(url):
         {"role": "user", "content": url}
     ]
 
-    # Choisir un modèle Groq
-    model_id = "llama-3.1-8b-instant"  # Assurez-vous que ce modèle peut gérer des URL
+    # Choose a Groq model
+    model_id = "llama-3.1-8b-instant"  # Ensure this model can handle URLs
 
-    # Appel à l'API Groq
+    # Call to Groq API
     chat_completion = client.chat.completions.create(
         messages=messages,
         model=model_id
@@ -131,35 +130,8 @@ def summarize_article_with_groq(url):
     return chat_completion.choices[0].message.content
 
 def get_groq_client():
-    """Initialise et renvoie un client Groq avec la clé API."""
+    """Initializes and returns a Groq client with the API key."""
     return Groq(api_key=st.secrets["GROQ_API_KEY"])
-
-# Sidebar navigation (now without the button logic for showing/hiding the guide)
-with st.sidebar:
-    st.header("Navigation")
-
-    st.write("Select the news sources:")
-    
-    feeds = list(rss_feeds.keys())
-    default_feeds = ["Food Quality & Safety"]
-    selected_feeds = st.multiselect("Select Feeds:", feeds, default=default_feeds)
-
-    # Date filter
-    min_date = st.date_input("Start date", value=pd.to_datetime("2023-01-01"))
-    max_date = st.date_input("End date", value=datetime.now().date())
-
-    paris_timezone = timezone('Europe/Paris')
-    st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
-
-    # Option to download the selected review as CSV
-    if "review_articles" in st.session_state and st.session_state["review_articles"]:
-        review_df = pd.DataFrame(st.session_state["review_articles"])
-        csv = review_df.to_csv(index=False)
-        st.download_button(label="Download Review as CSV", data=csv, file_name="review.csv", mime="text/csv")
-
-    # Option to edit the review
-    if st.button("Edit Selected Articles for Report"):
-        st.session_state["edit_mode"] = True
 
 # Main section to display either the README or the articles
 if st.session_state['showing_readme']:
@@ -167,6 +139,33 @@ if st.session_state['showing_readme']:
     readme_content = load_readme(readme_url)
     st.markdown(readme_content)
 else:
+    # Sidebar navigation
+    with st.sidebar:
+        st.header("Navigation")
+
+        st.write("Select the news sources:")
+        
+        feeds = list(rss_feeds.keys())
+        default_feeds = ["Food Quality & Safety"]
+        selected_feeds = st.multiselect("Select Feeds:", feeds, default=default_feeds)
+
+        # Date filter
+        min_date = st.date_input("Start date", value=pd.to_datetime("2023-01-01"))
+        max_date = st.date_input("End date", value=datetime.now().date())
+
+        paris_timezone = timezone('Europe/Paris')
+        st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
+
+        # Option to download the selected review as CSV
+        if "review_articles" in st.session_state and st.session_state["review_articles"]:
+            review_df = pd.DataFrame(st.session_state["review_articles"])
+            csv = review_df.to_csv(index=False)
+            st.download_button(label="Download Review as CSV", data=csv, file_name="review.csv", mime="text/csv")
+
+        # Option to edit the review
+        if st.button("Edit Selected Articles for Report"):
+            st.session_state["edit_mode"] = True
+
     # Parse feeds based on selected sources
     feeds_df = parse_feeds(selected_feeds)
 
@@ -237,4 +236,3 @@ else:
         # PDF and Email logic remains unchanged
 
     st.write("App finished setup.")
-
