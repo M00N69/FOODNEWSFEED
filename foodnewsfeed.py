@@ -38,7 +38,8 @@ rss_feeds = {
     "Food Packaging Forum": "https://www.foodpackagingforum.org/news/feed/",
     "Frech Recalls RAPPELCONSO": "https://rappel.conso.gouv.fr/rss?categorie=01",
     "INRS secu": "https://www.inrs.fr/rss/?feed=actualites",
-    "ANSES": "https://www.anses.fr/fr/flux-actualites.rss"
+    "ANSES": "https://www.anses.fr/fr/flux-actualites.rss",
+    "Food Ingredient fisrt": "https://resource.innovadatabase.com/rss/fifnews.xml"
 }
 
 # Function to parse all RSS feeds
