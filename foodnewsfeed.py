@@ -73,7 +73,7 @@ rss_feeds = {
     "Food Packaging Forum": "https://www.foodpackagingforum.org/news/feed/",
     "Food Safety Expert": "https://www.foodsafety-experts.com/feed/",
     "French Recalls RAPPELCONSO": "https://rappel.conso.gouv.fr/rss?categorie=01",
-    "Legifrance Alimentaire": " https://legifrss.org/latest?nature=arrete&author=Ministère de l'agriculture et de la souveraineté alimentaire",
+    "Legifrance Alimentaire": " https://agriculture.gouv.fr/rss.xml",
     "DGCCRF, French Fraud": "https://www.economie.gouv.fr/dgccrf/rss",
     "INRS secu": "https://www.inrs.fr/rss/?feed=actualites",
     "ANSES": "https://www.anses.fr/fr/flux-actualites.rss",
