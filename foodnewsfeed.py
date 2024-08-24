@@ -71,6 +71,7 @@ rss_feeds = {
     "Food Safety News": "https://feeds.lexblog.com/foodsafetynews/mRcs",
     "Food Manufacture": "https://www.foodmanufacture.co.uk/Info/FoodManufacture-RSS",
     "Food Packaging Forum": "https://www.foodpackagingforum.org/news/feed/",
+    "Food Safety Expert": "https://www.foodsafety-experts.com/feed/",
     "French Recalls RAPPELCONSO": "https://rappel.conso.gouv.fr/rss?categorie=01",
     "Legifrance Alimentaire": "https://legifrss.org/latest?nature=decret&q=alimentaire",
     "DGCCRF, French Fraud": "https://www.economie.gouv.fr/dgccrf/rss",
