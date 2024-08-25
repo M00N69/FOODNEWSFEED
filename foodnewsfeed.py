@@ -182,7 +182,7 @@ else:
         # Display articles manually with a button to add each one to the review
         for i, row in filtered_df.iterrows():
             with st.container():
-                cols = st.columns([1, 6, 2, 1, 1])
+                cols = st.columns([2, 6, 1, 1, 1])
                 cols[0].markdown(f"**{row['published'].strftime('%Y-%m-%d') if pd.notnull(row['published']) else 'Unknown'}**")
                 cols[1].markdown(f"**{row['title']}**")
                 cols[2].markdown(f"[Read More]({row['link']})")
