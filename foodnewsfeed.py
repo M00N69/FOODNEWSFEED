@@ -141,32 +141,40 @@ if st.session_state['showing_readme']:
     readme_content = load_readme(readme_url)
     st.markdown(readme_content)
 else:
-    # Sidebar navigation
-    with st.sidebar:
-        st.header("Navigation")
+# Sidebar navigation
+with st.sidebar:
+    st.header("Navigation")
 
-        st.write("Select the news sources:")
-        
-        feeds = list(rss_feeds.keys())
-        default_feeds = ["Food Quality & Safety"]
-        selected_feeds = st.multiselect("Select Feeds:", feeds, default=default_feeds)
+    # Add buttons to select all feeds or only one specific feed
+    if st.button("Select All Feeds"):
+        selected_feeds = list(rss_feeds.keys())
+    elif st.button("Select Food Safety Magazine"):
+        selected_feeds = ["Food safety Magazine"]
+    else:
+        # Default selection if no buttons are pressed
+        selected_feeds = ["Food Quality & Safety"]
 
-        # Date filter
-        min_date = st.date_input("Start date", value=pd.to_datetime("2023-01-01"))
-        max_date = st.date_input("End date", value=datetime.now().date())
+    st.write("Select the news sources:")
+    
+    # Multiselect for feeds with pre-selected options based on button clicks
+    selected_feeds = st.multiselect("Select Feeds:", list(rss_feeds.keys()), default=selected_feeds)
 
-        paris_timezone = timezone('Europe/Paris')
-        st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
+    # Date filter
+    min_date = st.date_input("Start date", value=pd.to_datetime("2023-01-01"))
+    max_date = st.date_input("End date", value=datetime.now().date())
 
-        # Option to download the selected review as CSV
-        if "review_articles" in st.session_state and st.session_state["review_articles"]:
-            review_df = pd.DataFrame(st.session_state["review_articles"])
-            csv = review_df.to_csv(index=False)
-            st.download_button(label="Download Review as CSV", data=csv, file_name="review.csv", mime="text/csv")
+    paris_timezone = timezone('Europe/Paris')
+    st.write(f"Last Update: {datetime.now(paris_timezone).strftime('%Y-%m-%d %H:%M:%S')}")
 
-        # Option to edit the review
-        if st.button("Edit Selected Articles for Report"):
-            st.session_state["edit_mode"] = True
+    # Option to download the selected review as CSV
+    if "review_articles" in st.session_state and st.session_state["review_articles"]:
+        review_df = pd.DataFrame(st.session_state["review_articles"])
+        csv = review_df.to_csv(index=False)
+        st.download_button(label="Download Review as CSV", data=csv, file_name="review.csv", mime="text/csv")
+
+    # Option to edit the review
+    if st.button("Edit Selected Articles for Report"):
+        st.session_state["edit_mode"] = True
 
     # Parse feeds based on selected sources
     feeds_df = parse_feeds(selected_feeds)
