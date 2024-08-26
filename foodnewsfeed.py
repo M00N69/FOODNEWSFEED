@@ -153,7 +153,7 @@ else:
         if st.button("Select All Feeds"):
             st.session_state['selected_feeds'] = list(rss_feeds.keys())
     
-        if st.button("Select Food Safety Magazine"):
+        if st.button("Select FSM"):
             st.session_state['selected_feeds'] = ["Food safety Magazine"]
     
         st.write("Select the news sources:")
