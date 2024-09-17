@@ -77,6 +77,7 @@ rss_feeds = {
     "DGCCRF, French Fraud": "https://www.economie.gouv.fr/dgccrf/rss",
     "INRS secu": "https://www.inrs.fr/rss/?feed=actualites",
     "ANSES": "https://www.anses.fr/fr/flux-actualites.rss",
+    "Health BE": "https://www.health.belgium.be/fr/rss/news.xml",
     "Food Ingredient first": "https://resource.innovadatabase.com/rss/fifnews.xml"
 }
 
