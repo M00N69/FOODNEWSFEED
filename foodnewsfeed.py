@@ -148,7 +148,7 @@ else:
     
         # Initialize selected_feeds if not already set
         if 'selected_feeds' not in st.session_state:
-            st.session_state['selected_feeds'] = ["Food Quality & Safety"]
+            st.session_state['selected_feeds'] = ["Food safety Magazine"]
     
         # Add buttons to select all feeds or only one specific feed
         if st.button("Select All Feeds"):
